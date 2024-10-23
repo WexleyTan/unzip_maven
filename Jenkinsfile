@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        IMAGE = "neathtan/gradle17_clone"
+        IMAGE = "neathtan/unzip_file"
         FILE_NAME = "latest_maven.zip"
         DIR_UNZIP = "latest_maven"  
         DOCKER_IMAGE = "${IMAGE}:${BUILD_NUMBER}"
