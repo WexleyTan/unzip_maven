@@ -54,22 +54,12 @@ pipeline {
             }
         }  
         
-        // stage("Clean Package") {
-        //     steps {
-        //         script {
-        //             echo "Building the application..."
-        //             dir("${DIR_UNZIP}") {  
-        //                 sh 'mvn clean install' 
-        //             }
-        //         }
-        //     }
-        // }
-        
         stage("Build and Push Docker Image") {
             steps {
                 script {
                     echo "Building Docker image..."
-                    dir("${DIR_UNZIP}") { 
+                    dir("${DIR_UNZIP}") {
+                        sh "mvn clean install"
                         sh "docker build -t ${DOCKER_IMAGE} ."  
                     }
                     sh "docker images | grep -i ${IMAGE}"
