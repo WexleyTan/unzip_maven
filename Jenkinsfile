@@ -2,8 +2,8 @@ pipeline {
     agent any
     environment {
         IMAGE = "neathtan/gradle17_clone"
-        FILE_NAME = "gradle14_new.zip"
-        DIR_UNZIP = "gradle14_new"  
+        FILE_NAME = "latest_maven.zip"
+        DIR_UNZIP = "latest_maven"  
         DOCKER_IMAGE = "${IMAGE}:${BUILD_NUMBER}"
         DOCKER_CONTAINER = "springboot17_jenkins"
         DOCKER_CREDENTIALS_ID = "dockertoken"
@@ -41,19 +41,14 @@ pipeline {
                 script {
                     echo "Creating Dockerfile..."
                     writeFile file: 'Dockerfile', text: '''
-                    FROM eclipse-temurin:17-jdk AS build
-                    WORKDIR /usr/app/
+                    FROM maven:3.8.7-eclipse-temurin-19 AS build
+                    WORKDIR /app
                     COPY . .
-                    RUN chmod +x gradlew
-                    RUN ./gradlew bootJar
-
-                    FROM eclipse-temurin:17-jdk
-                    ENV JAR_NAME=app.jar
-                    ENV APP_HOME=/usr/app/
-                    WORKDIR $APP_HOME
-                    COPY --from=build $APP_HOME/build/libs/*.jar app.jar
-                    EXPOSE 8080
-                    ENTRYPOINT ["java", "-jar", "/usr/app/app.jar"]
+                    RUN mvn clean package
+                    FROM eclipse-temurin:22.0.1_8-jre-ubi9-minimal
+                    COPY --from=build /app/target/*.jar /app/app.jar
+                    EXPOSE 9090
+                    ENTRYPOINT ["java", "-jar", "app.jar"]
                     '''
                 }
             }
