@@ -70,7 +70,7 @@ pipeline {
                 script {
                     echo "Building Docker image..."
                     dir("${DIR_UNZIP}") { 
-                        sh "docker build -t ${DOCKER_IMAGE} . > build_output.log 2>&1 "  
+                        sh "docker build -t ${DOCKER_IMAGE} ."  
                     }
                     sh "docker images | grep -i ${IMAGE}"
 
