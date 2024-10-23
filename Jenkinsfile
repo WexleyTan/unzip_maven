@@ -54,26 +54,25 @@ pipeline {
             }
         }
 
-        stage('Build and Push Docker Image') {
+        stage("Clean Package") {
+            steps {
+                script {
+                    echo "Building the application..."
+                    dir("${DIR_FILE}") {  
+                        sh 'mvn clean install' 
+                    }
+                }
+            }
+        }
+        
+        stage("Build and Push Docker Image") {
             steps {
                 script {
                     echo "Building Docker image..."
-                    
-                    dir("${DIR_UNZIP}") {
-                        sh "ls"
-                        sh "pwd"
-                        sh "cp ../Dockerfile ."
-                        
-                        sh "sed -i 's/languageVersion = JavaLanguageVersion.of([0-9]*)/languageVersion = JavaLanguageVersion.of(17)/' build.gradle"
-                        
-                        sh "docker build -t ${DOCKER_IMAGE} ."
+                    dir("${DIR_FILE}") { 
+                        sh "docker build -t ${DOCKER_IMAGE} . > build_output.log 2>&1 "  
                     }
                     sh "docker images | grep -i ${IMAGE}"
-
-                    echo "Logging in to Docker Hub using Jenkins credentials..."
-                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
-                        sh "echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin"
-                    }
 
                     echo "Pushing the image to Docker Hub..."
                     sh "docker push ${DOCKER_IMAGE}"
