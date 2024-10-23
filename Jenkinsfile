@@ -52,18 +52,18 @@ pipeline {
                     '''
                 }
             }
-        }
-
-        stage("Clean Package") {
-            steps {
-                script {
-                    echo "Building the application..."
-                    dir("${DIR_UNZIP}") {  
-                        sh 'mvn clean install' 
-                    }
-                }
-            }
-        }
+        }  
+        
+        // stage("Clean Package") {
+        //     steps {
+        //         script {
+        //             echo "Building the application..."
+        //             dir("${DIR_UNZIP}") {  
+        //                 sh 'mvn clean install' 
+        //             }
+        //         }
+        //     }
+        // }
         
         stage("Build and Push Docker Image") {
             steps {
@@ -74,12 +74,18 @@ pipeline {
                     }
                     sh "docker images | grep -i ${IMAGE}"
 
+    
+                    echo "Logging in to Docker Hub using Jenkins credentials..."
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+                        sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                    }
+                    
                     echo "Pushing the image to Docker Hub..."
                     sh "docker push ${DOCKER_IMAGE}"
                 }
             }
         }
-
+   
         stage("Cloning the Manifest File") {
             steps {
                 script {
