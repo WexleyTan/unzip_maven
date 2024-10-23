@@ -59,6 +59,7 @@ pipeline {
                 script {
                     echo "Building Docker image..."
                     dir("${DIR_UNZIP}") {
+                        sh "cp ../Dockerfile ."
                         sh "mvn clean install"
                         sh "docker build -t ${DOCKER_IMAGE} ."  
                     }
